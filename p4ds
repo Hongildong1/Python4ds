@@ -456,6 +456,9 @@ Name: births, dtype: int64
 > names = names.groupby(['year','sex']).apply(add_prob)
 # name에서 groupby를 year열과, sex열의 그룹을 만들고 add_prob 함수를 적용한다. 
 
+> print(np.allclose(names.groupby(['year','sex']).prop.sum(),1))
+# prop.sum의 값이 1이면 true, 아니면 false
+
 > print(names)
              name sex  births  year      prop
 0            Mary   F    6919  1881  0.075243
@@ -473,3 +476,36 @@ year
 1967  1650576  1744222
 1968  1639977  1738585
 1969  1686705  1789326
+
+> pieces = []
+> for year, group in names.groupby(['year','sex']):
+    pieces.append(group.sort_values(by='births', ascending=False)[:1000])
+    # pieces에 group의 sort_values를 통해 births 값을 내림차순으로 1000개 가져옴
+    top1000=pd.concat(pieces,ignore_index=True)
+    # 연도별, 성별에 따른 빈도수가 가장 높은 이름 1000개를 추출하자.
+    # 여기에서 append만 할 경우에는 각각 따로 값들이 나온다. 즉, 각각의 데이터 프레임으로 저장되기 때문에 하나의 데이터프레임이 되지 않는다.
+    따라서 concat을 통해 append로 된 각각의 데이터 프레임을 하나로 연결해준다. r을 본다면 rbind와 같다. 
+    # axis=0, 0: 위+아래로 합치기, 1: 왼쪽+오른쪽으로 합치기
+> print(pieces)
+664261      Derrell   M      53  1967  0.000030
+664262       Dickie   M      53  1967  0.000030
+664263    Ferdinand   M      53  1967  0.000030
+664264       Franco   M      53  1967  0.000030
+
+[1000 rows x 5 columns],              name sex  births  year      prop
+667815       Lisa   F   49523  1968  0.030197
+667816   Michelle   F   33206  1968  0.020248
+667817   Kimberly   F   31908  1968  0.019456
+# 각각의 데이터 프레임으로 저장되어 있다. 
+
+> print(top1000)
+             name sex  births  year      prop
+0            Mary   F    6919  1881  0.075243
+1            Anna   F    2698  1881  0.029340
+2            Emma   F    2034  1881  0.022120
+3       Elizabeth   F    1852  1881  0.020140
+4        Margaret   F    1658  1881  0.018031
+# 하나의 데이터 프레임으로 저장되어 있다. 
+
+
+# ~70page 완료 
