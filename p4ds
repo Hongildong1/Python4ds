@@ -454,9 +454,22 @@ Name: births, dtype: int64
     group['prop'] = births/ births.sum()
     return group
 > names = names.groupby(['year','sex']).apply(add_prob)
-# name에서 groupby를 year
+# name에서 groupby를 year열과, sex열의 그룹을 만들고 add_prob 함수를 적용한다. 
+
 > print(names)
              name sex  births  year      prop
 0            Mary   F    6919  1881  0.075243
 1            Anna   F    2698  1881  0.029340
 2            Emma   F    2034  1881  0.022120
+
+> total_births = names.pivot_table('births',index ='year',columns='sex',aggfunc=sum)
+# birth : 출생수, index : 년도별로 인덱스, columns는 성별로 구분, 적용할 함수는 sum
+
+> print(total_births.tail())
+sex         F        M
+year                  
+1965  1764815  1861138
+1966  1691650  1783577
+1967  1650576  1744222
+1968  1639977  1738585
+1969  1686705  1789326
