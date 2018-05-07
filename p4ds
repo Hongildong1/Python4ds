@@ -337,3 +337,126 @@ Wrong Trousers, The (1993)                          4.588235  4.478261
 Sunset Blvd. (a.k.a. Sunset Boulevard) (1950)       4.572650  4.464589
 Wallace & Gromit: The Best of Aardman Animation...  4.563107  4.385075
 
+> mean_ratings['diff'] = mean_ratings['M']-mean_ratings['F']
+> sorted_by_diff = mean_ratings.sort_values(by='diff')
+# sort_values는 diff로 오름차순한다.
+
+> print(sorted_by_diff[:15])
+gender                                        F         M      diff
+title                                                              
+Dirty Dancing (1987)                   3.790378  2.959596 -0.830782
+Jumpin' Jack Flash (1986)              3.254717  2.578358 -0.676359
+Grease (1978)                          3.975265  3.367041 -0.608224
+Little Women (1994)                    3.870588  3.321739 -0.548849
+Steel Magnolias (1989)                 3.901734  3.365957 -0.535777
+
+> rating_std_by_title = data.groupby('title')['rating'].std()
+# 평점의 표준편차 
+
+> print(rating_std_by_title)
+title
+$1,000,000 Duck (1971)                            1.092563
+'Night Mother (1986)                              1.118636
+'Til There Was You (1997)                         1.020159
+'burbs, The (1989)                                1.107760
+
+> rating_std_by_title = rating_std_by_title.ix[active_titles]
+# 250건 이상의 평점 정보가 있는 것만을 나타내는 active_titles인것만을 추려 표준편차를 계산
+
+> print(rating_std_by_title)
+title
+'burbs, The (1989)                                                    1.107760
+10 Things I Hate About You (1999)                                     0.989815
+101 Dalmatians (1961)                                                 0.982103
+101 Dalmatians (1996)                                                 1.098717
+12 Angry Men (1957)                                                   0.812731
+
+> top_female_ratings = mean_ratings.sort_index(by='F',ascending=False)
+# 내림차순
+
+> print(top_female_ratings)
+gender                                                     F         M  
+title                                                                    
+Close Shave, A (1995)                               4.644444  4.473795   
+Wrong Trousers, The (1993)                          4.588235  4.478261   
+Sunset Blvd. (a.k.a. Sunset Boulevard) (1950)       4.572650  4.464589   
+Wallace & Gromit: The Best of Aardman Animation...  4.563107  4.385075   
+Schindler's List (1993)                             4.562602  4.491415  
+
+> top_female_ratings = mean_ratings.sort_index()
+# sort_index()를 할 경우에는 title의 알파벳 순서로 정렬되고 by=F와 ascending = False를 통해 정렬할 수 있다. 
+
+> print(top_female_ratings)
+gender                                                     F         M  \
+title                                                                    
+'burbs, The (1989)                                  2.793478  2.962085   
+10 Things I Hate About You (1999)                   3.646552  3.311966   
+101 Dalmatians (1961)                               3.791444  3.500000   
+101 Dalmatians (1996)                               3.240000  2.911215   
+12 Angry Men (1957)                                 4.184397  4.328421   
+
+----------------------------------------------------------------------------------------------------------------------------
+# 신생아 이름
+> import pandas as pd
+
+> names1880 = pd.read_csv('C:/Users/ajtwl/PycharmProjects/P4DA/yob1880.txt', names =['name','sex','births'])
+# csv 읽기
+> print(names1880)
+           name sex  births
+0          Mary   F    7065
+1          Anna   F    2604
+2          Emma   F    2003
+3     Elizabeth   F    1939
+4        Minnie   F    1746
+
+> print(names1880.groupby('sex').births.sum())
+# names1880 데이터에 sex를 groupby를 하고 births 열에서 sum을 해라
+
+sex
+F     90993
+M    110493
+Name: births, dtype: int64
+
+------------------------------------------------------------------------------------------------------------------------------
+# 여러개의 이름이 비슷한 데이터를 하나의 변수에 입력
+
+> import pandas as pd
+> years = range(1881,1970)
+> pieces = []
+> columns = ['name','sex','births']
+
+> for year in years :
+    path = 'C:/Users/ajtwl/PycharmProjects/P4DA/yob%d.txt' %year
+    # %d를 통해 %year 값을 입력한다.
+    frame = pd.read_csv(path,names = columns)
+    # path 데이터에서 names는 열을 의미하며 열에 columns의 값을 읽어서 frame에 저장
+
+    frame['year']= year
+    # year 값을 frame['year']에 저장한다.
+    pieces.append(frame)
+    # frame을 추가한다.
+
+    names =pd.concat(pieces, ignore_index=True)
+# concat을 통해 여러개의 데이터프레임 pieces를 합친다. 
+# 읽어온 행의 순서는 몰라도 되므로 concat 메서드에 ignore_index =True를 인자로 전달해야 한다.
+
+> print(names)
+             name sex  births  year
+0            Mary   F    6919  1881
+1            Anna   F    2698  1881
+2            Emma   F    2034  1881
+3       Elizabeth   F    1852  1881
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+> def add_prob(group):
+    births =group.births.astype(float)
+    group['prop'] = births/ births.sum()
+    return group
+> names = names.groupby(['year','sex']).apply(add_prob)
+# name에서 groupby를 year
+> print(names)
+             name sex  births  year      prop
+0            Mary   F    6919  1881  0.075243
+1            Anna   F    2698  1881  0.029340
+2            Emma   F    2034  1881  0.022120
